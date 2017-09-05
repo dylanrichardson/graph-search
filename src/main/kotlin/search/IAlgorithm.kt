@@ -127,19 +127,24 @@ fun iterativeDeepening() = object : IAlgorithm {
     override fun getName() = "Iterative deepening search"
 
     override fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)?): Boolean {
-        // empty string or null
+
         val emptyOr = if (printExpansion == null) "" else null
 
+        // repeat depth limited search with incrementing limit
         return generateSequence(0) { it + 1 }.any { limit ->
+
             print(emptyOr ?: "L=$limit")
+            // run depth limited search with the current depth limit
             val success = depthLimited(limit).search(problem) { fringe ->
                 val queueString = fringe.joinToString(" ", "[", "]")
                 print(emptyOr ?: "   ${fringe[0].states[0]}      $queueString\n   ")
             }
+
             print(emptyOr ?: "\n")
             success
         }
     }
-
 }
+
+// Todo Uniform, Greedy, A*, Beam
 
