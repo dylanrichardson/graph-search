@@ -1,12 +1,15 @@
 package search
 
+import findFile
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.matchers.shouldThrow
 import io.kotlintest.specs.FreeSpec
+import makeGraph
+import StateImpl
 
 class LoadTest : FreeSpec() {
 
-    private val emptyGraph = Graph<StateImpl>()
+    private val emptyGraph = makeGraph()
     private val stateA = StateImpl('A')
     private val stateB = StateImpl('B')
 

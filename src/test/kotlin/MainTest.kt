@@ -1,8 +1,7 @@
-package search
-
 import io.kotlintest.TestCaseContext
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
+import search.nodeNotFoundExceptionMsg
 import java.io.PrintStream
 import java.io.ByteArrayOutputStream
 

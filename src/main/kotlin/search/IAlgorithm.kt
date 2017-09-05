@@ -1,20 +1,19 @@
 package search
 
 
-data class Problem<State: IState>(
-        val stateSpace: Graph<State>,
+data class Problem(
+        val stateSpace: Graph,
         val initialNode: Node,
         val goalState: State) {
 
     init {
-        @Suppress("UNCHECKED_CAST")
-        stateSpace.getNode(initialNode.getState() as State)
+        stateSpace.getNode(initialNode.state)
     }
 
-    constructor(stateSpace: Graph<State>, initialState: State, goalState: State) : this(stateSpace, stateSpace.getNode(initialState), goalState)
+    constructor(stateSpace: Graph, initialState: State, goalState: State) : this(stateSpace, stateSpace.getNode(initialState), goalState)
 }
 
-data class Path<State: IState>(
+data class Path(
         val states: List<State>,
         val cost: Double) {
 
@@ -27,23 +26,22 @@ data class Path<State: IState>(
     val length = states.size
 }
 
-interface Algorithm<State: IState> {
-    fun search(problem: Problem<State>, printExpansion: ((List<Path<State>>) -> Unit)?): Boolean
+interface IAlgorithm {
+    fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)?): Boolean
     fun getName(): String
 }
 
-data class AlgorithmImpl<State: IState>(
+data class Algorithm(
         private val name: String,
         private val comparator: Comparator<in State> = naturalOrder(),
         private val depthLimit: Int? = null,
-        private val addToFringe: (List<Path<State>>, Path<State>) -> List<Path<State>>)
-    : Algorithm<State>{
+        private val addToFringe: (List<Path>, Path) -> List<Path>)
+    : IAlgorithm {
 
     // General_Search
-    override fun search(problem: Problem<State>, printExpansion: ((List<Path<State>>) -> Unit)?): Boolean {
+    override fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)?): Boolean {
         // create fringe
-        @Suppress("UNCHECKED_CAST")
-        val root = Path(listOf(problem.initialNode.getState() as State), 0.0)
+        val root = Path(listOf(problem.initialNode.state), 0.0)
         val fringe = listOf(root)
         // recursively search and expand fringe
         return searchAndExpand(fringe, problem, printExpansion ?: {})
@@ -51,7 +49,7 @@ data class AlgorithmImpl<State: IState>(
 
     override fun getName() = name
 
-    private fun searchAndExpand(fringe: List<Path<State>>, problem: Problem<State>, printExpansion: (List<Path<State>>) -> Unit): Boolean {
+    private fun searchAndExpand(fringe: List<Path>, problem: Problem, printExpansion: (List<Path>) -> Unit): Boolean {
         // check if goal not found
         if (fringe.isEmpty())
             return false
@@ -89,7 +87,7 @@ data class AlgorithmImpl<State: IState>(
         return searchAndExpand(nextFringe, problem, printExpansion)
     }
 
-    internal fun atDepthLimit(path: Path<State>) =
+    internal fun atDepthLimit(path: Path) =
         if (depthLimit != null)
            path.length > depthLimit
         else
@@ -98,43 +96,43 @@ data class AlgorithmImpl<State: IState>(
 
 // searches
 
-fun <State: IState> addToFront() = { fringe: List<Path<State>>, path: Path<State> ->
+fun addToFront() = { fringe: List<Path>, path: Path ->
     listOf(path) + fringe
 }
 
-fun <State: IState> addToBack() = { fringe: List<Path<State>>, path: Path<State> ->
+fun addToBack() = { fringe: List<Path>, path: Path ->
     fringe + listOf(path)
 }
 
-fun <State: IState> depthFirst() = AlgorithmImpl<State>(
+fun depthFirst() = Algorithm(
         name = "Depth 1st search",
         comparator = reverseOrder(),
         addToFringe = addToFront()
 )
 
-fun <State: IState> breadthFirst() = AlgorithmImpl<State>(
+fun breadthFirst() = Algorithm(
         name = "Breadth 1st search",
         comparator = naturalOrder(),
         addToFringe = addToBack()
 )
 
-fun <State: IState> depthLimited(depth: Int) = AlgorithmImpl<State>(
+fun depthLimited(depth: Int) = Algorithm(
         name = "Depth-limited search (depth-limit = 2)",
         comparator = reverseOrder(),
         addToFringe = addToFront(),
         depthLimit = depth
 )
 
-fun <State: IState> iterativeDeepening() = object : Algorithm<State> {
+fun iterativeDeepening() = object : IAlgorithm {
     override fun getName() = "Iterative deepening search"
 
-    override fun search(problem: Problem<State>, printExpansion: ((List<Path<State>>) -> Unit)?): Boolean {
+    override fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)?): Boolean {
         // empty string or null
         val emptyOr = if (printExpansion == null) "" else null
 
         return generateSequence(0) { it + 1 }.any { limit ->
             print(emptyOr ?: "L=$limit")
-            val success = depthLimited<State>(limit).search(problem) { fringe ->
+            val success = depthLimited(limit).search(problem) { fringe ->
                 val queueString = fringe.joinToString(" ", "[", "]")
                 print(emptyOr ?: "   ${fringe[0].states[0]}      $queueString\n   ")
             }
@@ -145,10 +143,3 @@ fun <State: IState> iterativeDeepening() = object : Algorithm<State> {
 
 }
 
-val DepthFirst = depthFirst<StateImpl>()
-
-val BreadthFirst = breadthFirst<StateImpl>()
-
-val DepthLimited = depthLimited<StateImpl>(2)
-
-val IterativeDeepening = iterativeDeepening<StateImpl>()

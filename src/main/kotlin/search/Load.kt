@@ -4,7 +4,7 @@ import java.io.File
 
 // public
 
-fun <State: IState> Graph<State>.load(file: File): Graph<State> {
+fun Graph.load(file: File): Graph {
     // read file as list of string
     val lines = file.readLines()
     // separate file into edges and heuristics
@@ -23,7 +23,7 @@ internal fun separateLines(lines: List<String>): Pair<List<String>, List<String>
     return Pair(before, after)
 }
 
-internal fun <State: IState> Graph<State>.addEdges(lines: List<String>): Graph<State> {
+internal fun Graph.addEdges(lines: List<String>): Graph {
     // parse each line updating the graph
     return lines.fold(this) { newGraph, line ->
         val (source, destination, weight) = parseEdge(line)
@@ -31,7 +31,7 @@ internal fun <State: IState> Graph<State>.addEdges(lines: List<String>): Graph<S
     }
 }
 
-internal fun <State: IState> Graph<State>.parseEdge(line: String): Triple<State, State, Double> {
+internal fun Graph.parseEdge(line: String): Triple<State, State, Double> {
     // parse for format "<source> <destination> <weight>"
     val tokens = line.split(" ")
     return handleLineParseException(line, ::edgeFormatExceptionMsg) {
@@ -39,7 +39,7 @@ internal fun <State: IState> Graph<State>.parseEdge(line: String): Triple<State,
     }
 }
 
-internal fun <State: IState> Graph<State>.addHeuristics(lines: List<String>): Graph<State> {
+internal fun Graph.addHeuristics(lines: List<String>): Graph {
     // parse each line adding the heuristic to the graph
     return lines.fold(this) { newGraph, line ->
         try {
@@ -51,7 +51,7 @@ internal fun <State: IState> Graph<State>.addHeuristics(lines: List<String>): Gr
     }
 }
 
-internal fun <State: IState> Graph<State>.parseHeuristic(line: String): Pair<State, Double> {
+internal fun Graph.parseHeuristic(line: String): Pair<State, Double> {
     // parse for format "<state> <heuristic>"
     val tokens = line.split(" ")
     return handleLineParseException(line, ::heuristicFormatExceptionMsg) {

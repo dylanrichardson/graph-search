@@ -1,13 +1,10 @@
-package search
-
+import search.*
 import java.io.File
 import java.io.FileNotFoundException
 
 // public
 
 fun main(args: Array<String>) {
-    // list each algorithm to use
-    val algorithms = listOf(DepthFirst, BreadthFirst, DepthLimited, IterativeDeepening)
     // only catch and print runtime exceptions
     val problem = printRuntimeException {
         // parse the args for the file path
@@ -15,20 +12,12 @@ fun main(args: Array<String>) {
         // find the file with the path
         val file = findFile(filePath)
         // load the graph from the file
-        val graph = Graph<StateImpl>().load(file)
+        val graph = makeGraph().load(file)
         // make the problem to search from S to G in the graph
-        makeProblem(graph, StateImpl('S'), StateImpl('G'))
+        makeProblem(graph)
     }
     // perform a search on the file with each algorithm
-    problem?.let { runSearches(problem, algorithms) }
-}
-
-fun makeProblem(graph: Graph<StateImpl>, start: StateImpl, goal: StateImpl): Problem<StateImpl> {
-    return try {
-        Problem(graph, start, goal)
-    } catch (e: NodeNotFoundException) {
-        throw RuntimeException(e.message)
-    }
+    problem?.let { runSearches(problem, Algorithms) }
 }
 
 // private
@@ -44,14 +33,14 @@ internal fun <T> printRuntimeException(block: () -> T): T? {
     }
 }
 
-internal fun runSearches(problem: Problem<StateImpl>, algorithms: List<Algorithm<StateImpl>>) {
+internal fun runSearches(problem: Problem, algorithms: List<IAlgorithm>) {
     // run each algorithm on the problem
     algorithms.forEach { algorithm ->
         runSearch(algorithm, problem)
     }
 }
 
-internal fun runSearch(algorithm: Algorithm<StateImpl>, problem: Problem<StateImpl>) {
+internal fun runSearch(algorithm: IAlgorithm, problem: Problem) {
     println("${algorithm.getName()}\n")
     println("   Expanded  Queue")
     if (algorithm.search(problem, ::printExpansion)) {
@@ -61,7 +50,7 @@ internal fun runSearch(algorithm: Algorithm<StateImpl>, problem: Problem<StateIm
     println()
 }
 
-internal fun printExpansion(fringe: List<Path<StateImpl>>) {
+internal fun printExpansion(fringe: List<Path>) {
     val queueString = fringe.joinToString(separator = " ", prefix = "[", postfix = "]")
     println("      ${fringe[0].states[0]}      $queueString")
 }

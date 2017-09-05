@@ -2,10 +2,12 @@ package search
 
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
+import makeGraph
+import StateImpl
 
 class GraphTest : FreeSpec() {
 
-    private val emptyGraph = Graph<StateImpl>()
+    private val emptyGraph = makeGraph()
     private val stateA = StateImpl('A')
     private val stateB = StateImpl('B')
 
@@ -38,7 +40,7 @@ class GraphTest : FreeSpec() {
                     val graph = emptyGraph
                             .addEdge(stateA, stateA, 0.0)
                             .updateHeuristic(stateA, heuristic)
-                    graph.getNode(stateA).getHeuristic() shouldBe heuristic
+                    graph.getNode(stateA).heuristic shouldBe heuristic.plusOrMinus(0.00001)
                 }
 
                 "throws error if the node does not exist" {
@@ -59,7 +61,7 @@ class GraphTest : FreeSpec() {
                     val graph = emptyGraph
                             .addEdge(stateA, stateB, 0.0)
                             .addState(stateA)
-                    graph.getNode(stateA).getEdges().keys shouldBe setOf(stateB)
+                    graph.getNode(stateA).edges.keys shouldBe setOf(stateB)
                 }
             }
 
@@ -67,7 +69,7 @@ class GraphTest : FreeSpec() {
                 val graph = emptyGraph
                         .addEdge(stateA, stateB, 0.0)
                         .connectBothStates(stateA, stateA, 0.0)
-                graph.getNode(stateA).getEdges().keys shouldBe setOf(stateA, stateB)
+                graph.getNode(stateA).edges.keys shouldBe setOf(stateA, stateB)
             }
 
             "updateNodes" - {
@@ -84,13 +86,13 @@ class GraphTest : FreeSpec() {
             "updateNode" - {
                 "returns a new graph with the mutated node" {
                     @Suppress("UNCHECKED_CAST")
-                    val edges = emptyMap<StateImpl, Double>() as Map<IState, Double>
+                    val edges = emptyMap<StateImpl, Double>() as Map<State, Double>
                     val graph = emptyGraph
                             .addEdge(stateA, stateA, 0.0)
                             .updateNode(stateA) {
                                 it.copy(edges = edges)
                             }
-                    graph.getNode(stateA).getEdges() shouldBe edges
+                    graph.getNode(stateA).edges shouldBe edges
                 }
 
                 "throws error if node does not exist" {
