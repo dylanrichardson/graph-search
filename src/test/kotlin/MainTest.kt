@@ -6,6 +6,10 @@ import java.io.PrintStream
 import java.io.ByteArrayOutputStream
 
 
+internal fun String.addNewLine(): String {
+    return this + System.getProperty("line.separator")
+}
+
 class MainTest : FreeSpec() {
 
     private val outContent = ByteArrayOutputStream()
@@ -31,17 +35,17 @@ class MainTest : FreeSpec() {
             "prints error when file not found" {
                 val path = "test"
                 main(arrayOf("", path))
-                errContent.toString() shouldBe fileNotFoundMsg("$path\n")
+                errContent.toString() shouldBe fileNotFoundMsg(path).addNewLine()
             }
 
             "prints error when file path not passed as argument" {
                 main(arrayOf(""))
-                errContent.toString() shouldBe "$FileArgExceptionMsg\n"
+                errContent.toString() shouldBe FileArgExceptionMsg.addNewLine()
             }
 
             "prints error when initial or goal state not found in graph" {
                 main(arrayOf("", "graph1.txt"))
-                errContent.toString() shouldBe "${nodeNotFoundExceptionMsg(StateImpl('S'))}\n"
+                errContent.toString() shouldBe nodeNotFoundExceptionMsg(StateImpl('S')).addNewLine()
             }
         }
 
