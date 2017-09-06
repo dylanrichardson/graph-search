@@ -15,7 +15,25 @@ data class Problem(
 
 data class Path(
         val states: List<State>,
-        val cost: Double) {
+        val cost: Double)
+    : Comparable<Path>{
+
+    override fun compareTo(other: Path): Int {
+        // compare in this order:  path cost, end state, path length, all states
+        val costCmp = cost.compareTo(other.cost)
+        return if (costCmp == 0) {
+            val endCmp = states[0].compareTo(other.states[0])
+            if (endCmp == 0) {
+                val lengthCmp = length.compareTo(other.length)
+                if (lengthCmp == 0)
+                    states.joinToString().compareTo(other.states.joinToString())
+                else
+                    lengthCmp
+            } else
+                endCmp
+        } else
+            costCmp
+    }
 
     override fun toString() = states.joinToString(separator = ",", prefix = "<", postfix = ">")
 
@@ -24,16 +42,20 @@ data class Path(
     fun didVisit(state: State) = states.contains(state)
 
     val length = states.size
+
+    fun addState(state: State, edgeCost: Double): Path {
+        return Path(listOf(state) + states, edgeCost + cost)
+    }
 }
 
 interface IAlgorithm {
-    fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)?): Boolean
+    fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)? = null): Boolean
     fun getName(): String
 }
 
 data class Algorithm(
         private val name: String,
-        private val comparator: Comparator<in State> = naturalOrder(),
+        private val expansionOrder: Comparator<in State> = naturalOrder(),
         private val depthLimit: Int? = null,
         private val addToFringe: (List<Path>, Path) -> List<Path>)
     : IAlgorithm {
@@ -70,7 +92,7 @@ data class Algorithm(
         val children = problem.stateSpace
                 .expandState(stateToExpand)
                 .filterNot { path.didVisit(it) }
-                .sortedWith(comparator)
+                .sortedWith(expansionOrder)
 
         // check depth limit if applicable
         val nextFringe = if (atDepthLimit(path)) restFringe else {
@@ -78,7 +100,7 @@ data class Algorithm(
             // add a new path for each child to the fringe
             children.fold(restFringe) { newFringe, child ->
                 val edgeCost = problem.stateSpace.costBetween(stateToExpand, child) ?: 0.0
-                val newPath = Path(listOf(child) + path.states, edgeCost)
+                val newPath = path.addState(child, edgeCost)
                 addToFringe(newFringe, newPath)
             }
         }
@@ -94,32 +116,33 @@ data class Algorithm(
             false
 }
 
-// searches
 
-fun addToFront() = { fringe: List<Path>, path: Path ->
-    listOf(path) + fringe
-}
 
-fun addToBack() = { fringe: List<Path>, path: Path ->
-    fringe + listOf(path)
-}
+// SEARCHES
+
+
+
+fun addToFront(fringe: List<Path>, path: Path) = listOf(path) + fringe
+
+fun addToBack(fringe: List<Path>, path: Path) = fringe + listOf(path)
+
 
 fun depthFirst() = Algorithm(
         name = "Depth 1st search",
-        comparator = reverseOrder(),
-        addToFringe = addToFront()
+        expansionOrder = reverseOrder(),
+        addToFringe = ::addToFront
 )
 
 fun breadthFirst() = Algorithm(
         name = "Breadth 1st search",
-        comparator = naturalOrder(),
-        addToFringe = addToBack()
+        expansionOrder = naturalOrder(),
+        addToFringe = ::addToBack
 )
 
 fun depthLimited(depth: Int) = Algorithm(
         name = "Depth-limited search (depth-limit = 2)",
-        comparator = reverseOrder(),
-        addToFringe = addToFront(),
+        expansionOrder = reverseOrder(),
+        addToFringe = ::addToFront,
         depthLimit = depth
 )
 
@@ -146,5 +169,13 @@ fun iterativeDeepening() = object : IAlgorithm {
     }
 }
 
-// Todo Uniform, Greedy, A*, Beam
+fun uniform() = Algorithm(
+        name = "Uniform Search (Branch-and-bound)",
+        expansionOrder = naturalOrder(),
+        addToFringe = { fringe, path -> addToBack(fringe, path).sorted() }
+)
+
+
+
+// Todo Greedy, A*, Beam
 

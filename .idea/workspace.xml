@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3c32e593-75a0-4385-be65-fb3f80a02863" name="Default" comment="Add todos and gradle for Windows">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/DepthFirstImpl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gradlew.bat" afterPath="$PROJECT_DIR$/gradlew.bat" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/Example.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/Example.kt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" />
@@ -1091,7 +1090,7 @@
       <workItem from="1504142133624" duration="44438000" />
       <workItem from="1504359789512" duration="72307000" />
       <workItem from="1504572277666" duration="2026000" />
-      <workItem from="1504634849599" duration="6373000" />
+      <workItem from="1504634849599" duration="6458000" />
     </task>
     <task id="LOCAL-00001" summary="Add graph data structure, general search, and blind search examples">
       <created>1504567892136</created>
@@ -1114,7 +1113,14 @@
       <option name="project" value="LOCAL" />
       <updated>1504615923813</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Add intellij workspace">
+      <created>1504721510168</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1504721510168</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1150,7 +1156,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="127179000" />
+    <option name="totallyTimeSpent" value="127264000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="795" extended-state="0" />
@@ -1225,7 +1231,8 @@
     <MESSAGE value="Add graph data structure, general search, and blind search examples" />
     <MESSAGE value="Move main program and examples out of search package" />
     <MESSAGE value="Add todos and gradle for Windows" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add todos and gradle for Windows" />
+    <MESSAGE value="Add intellij workspace" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add intellij workspace" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1517,6 +1524,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

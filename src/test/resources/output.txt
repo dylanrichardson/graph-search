@@ -121,7 +121,7 @@ Uniform Search (Branch-and-bound)
       E      [10<E,D,A,S> 10<F,E,D,S> 11<B,E,D,S> 11<C,B,A,S> 12<E,B,A,S> 13<B,A,D,S>]
       F      [10<F,E,D,S> 11<B,E,D,S> 11<C,B,A,S> 12<E,B,A,S> 13<B,A,D,S> 14<F,E,D,A,S> 15<B,E,D,A,S>]
       B      [11<B,E,D,S> 11<C,B,A,S> 12<E,B,A,S> 13<B,A,D,S> 13<G,F,E,D,S> 14<F,E,D,A,S> 15<B,E,D,A,S>]
-      C      [11<C,B,A,S> 12<E,B,A,S> 13<B,A,D,S> 13<G,F,E,D,S> 14<F,E,D,A,S> 15<A,B,E,D,S> 15<B,E,D,A,S>15 <C,B,E,D,S>]
+      C      [11<C,B,A,S> 12<E,B,A,S> 13<B,A,D,S> 13<G,F,E,D,S> 14<F,E,D,A,S> 15<A,B,E,D,S> 15<B,E,D,A,S> 15<C,B,E,D,S>]
       E      [12<E,B,A,S> 13<B,A,D,S> 13<G,F,E,D,S> 14<F,E,D,A,S> 15<A,B,E,D,S> 15<B,E,D,A,S> 15<C,B,E,D,S>]
       B      [13<B,A,D,S> 13<G,F,E,D,S> 14<D,E,B,A,S> 14<F,E,D,A,S> 15<A,B,E,D,S> 15<B,E,D,A,S> 15<C,B,E,D,S> 16<F,E,B,A,S>]
       G      [13<G,F,E,D,S> 14<D,E,B,A,S> 14<F,E,D,A,S> 15<A,B,E,D,S> 15<B,E,D,A,S> 15<C,B,E,D,S> 16<F,E,B,A,S> 17<C,B,A,D,S> 18<E,B,A,D,S>]

@@ -34,6 +34,7 @@ fun makeProblem(graph: Graph): Problem {
 
 
 val DepthFirst = depthFirst()
+//val DepthFirst = DepthFirstImpl()
 
 val BreadthFirst = breadthFirst()
 
@@ -41,6 +42,14 @@ val DepthLimited = depthLimited(2)
 
 val IterativeDeepening = iterativeDeepening()
 
+val Uniform = object : IAlgorithm {
+    override fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)?): Boolean {
+        return uniform().search(problem) { fringe -> printExpansion(fringe, true) }
+    }
 
-val Algorithms = listOf(DepthFirst, BreadthFirst, DepthLimited, IterativeDeepening)
+    override fun getName() = uniform().getName()
+
+}
+
+val Algorithms = listOf(DepthFirst, BreadthFirst, DepthLimited, IterativeDeepening, Uniform)
 

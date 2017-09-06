@@ -43,15 +43,24 @@ internal fun runSearches(problem: Problem, algorithms: List<IAlgorithm>) {
 internal fun runSearch(algorithm: IAlgorithm, problem: Problem) {
     println("${algorithm.getName()}\n")
     println("   Expanded  Queue")
-    if (algorithm.search(problem, ::printExpansion)) {
+    val success = algorithm.search(problem) { fringe -> printExpansion(fringe) }
+    if (success) {
         println("      goal reached!")
     }
     println()
     println()
 }
 
-internal fun printExpansion(fringe: List<Path>) {
-    val queueString = fringe.joinToString(separator = " ", prefix = "[", postfix = "]")
+internal fun printExpansion(fringe: List<Path>, printCost: Boolean = false) {
+    val queueString = fringe.joinToString(separator = " ", prefix = "[", postfix = "]") { path ->
+        val cost = if (printCost) path.cost.toInt().toString() else ""
+        cost + path.toString()
+    }
+    println("      ${fringe[0].states[0]}      $queueString")
+}
+
+internal fun printExpansionWithCost(fringe: List<Path>) {
+    val queueString = fringe.joinToString(separator = " ", prefix = "[", postfix = "]") { path -> path.toString() }
     println("      ${fringe[0].states[0]}      $queueString")
 }
 

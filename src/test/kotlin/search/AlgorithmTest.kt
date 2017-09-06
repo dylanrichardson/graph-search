@@ -5,6 +5,7 @@ import io.kotlintest.matchers.shouldThrow
 import io.kotlintest.specs.FreeSpec
 import makeGraph
 import StateImpl
+import findFile
 
 class AlgorithmTest : FreeSpec() {
     init {
@@ -14,16 +15,20 @@ class AlgorithmTest : FreeSpec() {
             val goal = StateImpl('G')
             val problem = Problem(makeGraph().addEdge(start, goal, 1.0), start, goal)
             val depthLimit = 1
-            val algorithm = Algorithm("test", naturalOrder(), depthLimit, addToFront())
+            val algorithm = Algorithm("test", naturalOrder(), depthLimit, ::addToFront)
 
             "search" - {
-                algorithm.search(problem, {}) shouldBe true
+                algorithm.search(problem) shouldBe true
             }
 
             "atDepthLimit" - {
                 algorithm.atDepthLimit(Path(emptyList(), 0.0)) shouldBe false
             }
         }
+
+//        "Uniform" - {
+//            uniform().search(Problem(makeGraph().load(findFile("graph.txt")), StateImpl('S'), StateImpl('G'))) shouldBe true
+//        }
 
         "Problem" - {
             "constructor throws error if initial or goal state not in graph" {
