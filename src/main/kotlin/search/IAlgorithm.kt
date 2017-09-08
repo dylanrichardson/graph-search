@@ -97,7 +97,7 @@ data class Algorithm(
                 .sortedWith(expansionOrder.reversed())
 
         // check depth limit if applicable
-        val nextFringe = if (atDepthLimit(path)) restFringe else {
+        val nextFringe = if (path.isAtDepthLimit()) restFringe else {
             // add a new path for each child to the fringe
             children.fold(restFringe) { newFringe, child ->
                 val edgeCost = problem.stateSpace.costBetween(nodeToExpand, child) ?: 0.0
@@ -106,27 +106,23 @@ data class Algorithm(
             }
         }
 
-        // prune fringe if width limited and over limit
-        val prunedFringe = if (widthLimited && nextFringe.isOverWidthLimit()) {
-            val max = nextFringe.map{p -> p.heuristic}.sorted().take(widthLimit!!).last()
-            nextFringe.filterNot { it.end?.heuristic!! > max }.take(widthLimit)
-        } else nextFringe
+        // prune fringe if applicable and over limit
+        val prunedFringe = if (nextFringe.isOverWidthLimit()) nextFringe.prune() else nextFringe
 
         // search next fringe
         return searchAndExpand(prunedFringe, problem, printExpansion)
     }
 
+    private fun List<Path>.prune(): List<Path> {
+        val max = sortedBy(Path::heuristic).take(widthLimit!!).last().heuristic
+        return filterNot { it.heuristic > max }.take(widthLimit)
+    }
+
     private fun List<Path>.isAtNewLevel() = distinctBy(Path::length).size == 1
 
-    private fun List<Path>.isOverWidthLimit() = isAtNewLevel() && size > widthLimit!!
+    private fun List<Path>.isOverWidthLimit() = widthLimit != null && isAtNewLevel() && size > widthLimit
 
-    private val widthLimited = widthLimit != null
-
-    internal fun atDepthLimit(path: Path) =
-        if (depthLimit != null)
-           path.length > depthLimit
-        else
-            false
+    private fun Path.isAtDepthLimit() = depthLimit != null && length > depthLimit
 }
 
 // SEARCHES

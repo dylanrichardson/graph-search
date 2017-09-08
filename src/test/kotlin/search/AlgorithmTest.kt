@@ -20,10 +20,6 @@ class AlgorithmTest : FreeSpec() {
             "search" - {
                 algorithm.search(problem) shouldBe true
             }
-
-            "atDepthLimit" - {
-                algorithm.atDepthLimit(Path(emptyList(), 0.0)) shouldBe false
-            }
         }
 
 //        "Uniform" - {
