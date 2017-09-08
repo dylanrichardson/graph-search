@@ -2,7 +2,6 @@ import search.*
 import java.io.File
 import java.io.FileNotFoundException
 
-// public
 
 fun main(args: Array<String>) {
     // only catch and print runtime exceptions
@@ -16,7 +15,7 @@ fun main(args: Array<String>) {
         // make the problem to search from S to G in the graph
         makeProblem(graph)
     }
-    // perform a search on the file with each algorithm
+    // perform a search on the problem with each algorithm
     problem?.let { runSearches(problem, Algorithms) }
 }
 
@@ -38,30 +37,6 @@ internal fun runSearches(problem: Problem, algorithms: List<IAlgorithm>) {
     algorithms.forEach { algorithm ->
         runSearch(algorithm, problem)
     }
-}
-
-internal fun runSearch(algorithm: IAlgorithm, problem: Problem) {
-    println("${algorithm.getName()}\n")
-    println("   Expanded  Queue")
-    val success = algorithm.search(problem) { fringe -> printExpansion(fringe) }
-    if (success) {
-        println("      goal reached!")
-    }
-    println()
-    println()
-}
-
-internal fun printExpansion(fringe: List<Path>, printCost: Boolean = false) {
-    val queueString = fringe.joinToString(separator = " ", prefix = "[", postfix = "]") { path ->
-        val cost = if (printCost) path.cost.toInt().toString() else ""
-        cost + path.toString()
-    }
-    println("      ${fringe[0].states[0]}      $queueString")
-}
-
-internal fun printExpansionWithCost(fringe: List<Path>) {
-    val queueString = fringe.joinToString(separator = " ", prefix = "[", postfix = "]") { path -> path.toString() }
-    println("      ${fringe[0].states[0]}      $queueString")
 }
 
 internal fun fileNotFoundMsg(path: String) = "Could not find file with path: $path"

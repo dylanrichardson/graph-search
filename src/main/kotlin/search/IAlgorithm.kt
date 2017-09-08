@@ -14,100 +14,113 @@ data class Problem(
 }
 
 data class Path(
-        val states: List<State>,
+        val nodes: List<Node>,
         val cost: Double)
-    : Comparable<Path>{
+    : Comparable<Path> {
+
+    companion object {
+        val comparator = compareBy<Path> { it.cost }
+                .thenBy { it.end }
+                .thenBy { it.length }
+                .thenBy { it.nodes.joinToString() }
+    }
 
     override fun compareTo(other: Path): Int {
-        // compare in this order:  path cost, end state, path length, all states
-        val costCmp = cost.compareTo(other.cost)
-        return if (costCmp == 0) {
-            val endCmp = states[0].compareTo(other.states[0])
-            if (endCmp == 0) {
-                val lengthCmp = length.compareTo(other.length)
-                if (lengthCmp == 0)
-                    states.joinToString().compareTo(other.states.joinToString())
-                else
-                    lengthCmp
-            } else
-                endCmp
-        } else
-            costCmp
+        return comparator.compare(this, other)
     }
 
-    override fun toString() = states.joinToString(separator = ",", prefix = "<", postfix = ">")
+    override fun toString() = nodes.map { n -> n.state }.joinToString(separator = ",", prefix = "<", postfix = ">")
 
-    fun nextState() = states[0]
+    fun nextNode() = nodes[0]
 
-    fun didVisit(state: State) = states.contains(state)
+    fun didVisit(node: Node) = nodes.contains(node)
 
-    val length = states.size
+    val length = nodes.size
 
-    fun addState(state: State, edgeCost: Double): Path {
-        return Path(listOf(state) + states, edgeCost + cost)
+    fun addNode(node: Node, edgeCost: Double): Path {
+        return Path(listOf(node) + nodes, edgeCost + cost)
     }
+
+    val end = nodes.getOrNull(0)
+
+    val heuristic = end?.heuristic ?: 0.0
+
+    val eval = cost + heuristic
 }
 
 interface IAlgorithm {
-    fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)? = null): Boolean
+    fun search(problem: Problem, printExpansion: ((List<Path>, (Path) -> Any) -> Unit)? = null): Boolean
     fun getName(): String
 }
 
 data class Algorithm(
         private val name: String,
-        private val expansionOrder: Comparator<in State> = naturalOrder(),
+        private val expansionOrder: Comparator<in Node> = reverseOrder(),
         private val depthLimit: Int? = null,
-        private val addToFringe: (List<Path>, Path) -> List<Path>)
+        private val widthLimit: Int? = null,
+        private val addToFringe: (List<Path>, Path) -> List<Path>,
+        private val prefix: ((Path) -> Any) = {""})
     : IAlgorithm {
 
     // General_Search
-    override fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)?): Boolean {
+    override fun search(problem: Problem, printExpansion: ((List<Path>, (Path) -> Any) -> Unit)?): Boolean {
         // create fringe
-        val root = Path(listOf(problem.initialNode.state), 0.0)
+        val root = Path(listOf(problem.initialNode), 0.0)
         val fringe = listOf(root)
         // recursively search and expand fringe
-        return searchAndExpand(fringe, problem, printExpansion ?: {})
+        return searchAndExpand(fringe, problem, printExpansion ?: { _, _ ->})
     }
 
     override fun getName() = name
 
-    private fun searchAndExpand(fringe: List<Path>, problem: Problem, printExpansion: (List<Path>) -> Unit): Boolean {
+    private fun searchAndExpand(fringe: List<Path>, problem: Problem, printExpansion: (List<Path>, (Path) -> Any) -> Unit): Boolean {
         // check if goal not found
         if (fringe.isEmpty())
             return false
 
         // print expansion step
-        printExpansion(fringe)
+        printExpansion(fringe, prefix)
 
         // get the first state and path in the fringe
         val path = fringe[0]
         val restFringe = fringe.subList(1, fringe.size)
-        val stateToExpand = path.nextState()
+        val nodeToExpand = path.nextNode()
 
         // check if state is goal
-        if (stateToExpand == problem.goalState)
+        if (nodeToExpand.state == problem.goalState)
             return true
 
         // expand the state, remove visited states, and sort by algorithm
         val children = problem.stateSpace
-                .expandState(stateToExpand)
+                .expandNode(nodeToExpand)
                 .filterNot { path.didVisit(it) }
-                .sortedWith(expansionOrder)
+                .sortedWith(expansionOrder.reversed())
 
         // check depth limit if applicable
         val nextFringe = if (atDepthLimit(path)) restFringe else {
-
             // add a new path for each child to the fringe
             children.fold(restFringe) { newFringe, child ->
-                val edgeCost = problem.stateSpace.costBetween(stateToExpand, child) ?: 0.0
-                val newPath = path.addState(child, edgeCost)
+                val edgeCost = problem.stateSpace.costBetween(nodeToExpand, child) ?: 0.0
+                val newPath = path.addNode(child, edgeCost)
                 addToFringe(newFringe, newPath)
             }
         }
 
+        // prune fringe if width limited and over limit
+        val prunedFringe = if (widthLimited && nextFringe.isOverWidthLimit()) {
+            val max = nextFringe.map{p -> p.heuristic}.sorted().take(widthLimit!!).last()
+            nextFringe.filterNot { it.end?.heuristic!! > max }.take(widthLimit)
+        } else nextFringe
+
         // search next fringe
-        return searchAndExpand(nextFringe, problem, printExpansion)
+        return searchAndExpand(prunedFringe, problem, printExpansion)
     }
+
+    private fun List<Path>.isAtNewLevel() = distinctBy(Path::length).size == 1
+
+    private fun List<Path>.isOverWidthLimit() = isAtNewLevel() && size > widthLimit!!
+
+    private val widthLimited = widthLimit != null
 
     internal fun atDepthLimit(path: Path) =
         if (depthLimit != null)
@@ -116,32 +129,50 @@ data class Algorithm(
             false
 }
 
-
-
 // SEARCHES
 
-
+// helpers
 
 fun addToFront(fringe: List<Path>, path: Path) = listOf(path) + fringe
 
 fun addToBack(fringe: List<Path>, path: Path) = fringe + listOf(path)
 
+fun <T : Comparable<T>> addAndSortBy(selector: (Path) -> T?) = { fringe: List<Path>, path: Path ->
+    addToBack(fringe, path).sortedWith(compareBy(selector).then(Path.comparator))
+}
+
+fun Path.findAlternatePath(others: List<Path>): Path? {
+    return others.firstOrNull { path -> path.end == end}
+}
+
+fun aStarAdd(fringe: List<Path>, newPath: Path): List<Path> {
+    val alternatePath = newPath.findAlternatePath(fringe)
+    val newFringe = ArrayList(fringe)
+    if (alternatePath != null) {
+        if (alternatePath.eval < newPath.eval)
+            return fringe
+        else
+            newFringe.remove(alternatePath)
+    }
+    return addAndSortBy(Path::eval)(newFringe, newPath)
+}
+
+// uninformed
 
 fun depthFirst() = Algorithm(
         name = "Depth 1st search",
-        expansionOrder = reverseOrder(),
+        expansionOrder = naturalOrder(),
         addToFringe = ::addToFront
 )
 
 fun breadthFirst() = Algorithm(
         name = "Breadth 1st search",
-        expansionOrder = naturalOrder(),
         addToFringe = ::addToBack
 )
 
 fun depthLimited(depth: Int) = Algorithm(
         name = "Depth-limited search (depth-limit = 2)",
-        expansionOrder = reverseOrder(),
+        expansionOrder = naturalOrder(),
         addToFringe = ::addToFront,
         depthLimit = depth
 )
@@ -149,33 +180,49 @@ fun depthLimited(depth: Int) = Algorithm(
 fun iterativeDeepening() = object : IAlgorithm {
     override fun getName() = "Iterative deepening search"
 
-    override fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)?): Boolean {
-
-        val emptyOr = if (printExpansion == null) "" else null
-
+    override fun search(problem: Problem, printExpansion: ((List<Path>, (Path) -> Any) -> Unit)?): Boolean {
+        val shouldPrint = printExpansion != null
         // repeat depth limited search with incrementing limit
         return generateSequence(0) { it + 1 }.any { limit ->
-
-            print(emptyOr ?: "L=$limit")
-            // run depth limited search with the current depth limit
-            val success = depthLimited(limit).search(problem) { fringe ->
-                val queueString = fringe.joinToString(" ", "[", "]")
-                print(emptyOr ?: "   ${fringe[0].states[0]}      $queueString\n   ")
-            }
-
-            print(emptyOr ?: "\n")
+            if (shouldPrint) println("L=$limit")
+            val success = depthLimited(limit).search(problem, printExpansion)
+            if (shouldPrint) println()
             success
         }
     }
 }
 
-fun uniform() = Algorithm(
+fun uniformCost() = Algorithm(
         name = "Uniform Search (Branch-and-bound)",
-        expansionOrder = naturalOrder(),
-        addToFringe = { fringe, path -> addToBack(fringe, path).sorted() }
+        addToFringe = addAndSortBy(Path::cost),
+        prefix = Path::cost
 )
 
+// informed
 
+fun greedy() = Algorithm(
+        name = "Greedy search",
+        addToFringe = addAndSortBy(Path::heuristic),
+        prefix = Path::heuristic
+)
 
-// Todo Greedy, A*, Beam
+fun aStar() = Algorithm(
+        name = "A*",
+        addToFringe = ::aStarAdd,
+        prefix = Path::eval
+)
+
+fun beam(width: Int) = Algorithm(
+        name = "Beam search (w = $width)",
+        addToFringe = ::addToBack,
+        widthLimit = width,
+        prefix = Path::heuristic
+)
+
+fun hillClimbing() = Algorithm(
+        name = "Hill climbing",
+        expansionOrder = compareBy(Node::heuristic),
+        addToFringe = ::addToFront,
+        prefix = Path::heuristic
+)
 

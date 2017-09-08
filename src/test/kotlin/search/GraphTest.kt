@@ -17,9 +17,11 @@ class GraphTest : FreeSpec() {
                 "adds nodes if states are not in graph and connects them" {
                     val weight = 2.0
                     val graph = emptyGraph.addEdge(stateA, stateB, weight)
+                    val nodeA = graph.getNode(stateA)
+                    val nodeB = graph.getNode(stateB)
                     // check states are connected
-                    graph.costBetween(stateA, stateB) shouldBe weight
-                    graph.costBetween(stateB, stateA) shouldBe weight
+                    graph.costBetween(nodeA, nodeB) shouldBe weight
+                    graph.costBetween(nodeB, nodeA) shouldBe weight
                 }
 
                 "does not add nodes if states are in graph and connects them" {
@@ -28,9 +30,11 @@ class GraphTest : FreeSpec() {
                             .addState(stateA)
                             .addState(stateB)
                             .addEdge(stateA, stateB, weight)
+                    val nodeA = graph.getNode(stateA)
+                    val nodeB = graph.getNode(stateB)
                     // check states are connected
-                    graph.costBetween(stateA, stateB) shouldBe weight
-                    graph.costBetween(stateA, stateB) shouldBe weight
+                    graph.costBetween(nodeA, nodeB) shouldBe weight
+                    graph.costBetween(nodeB, nodeA) shouldBe weight
                 }
             }
 

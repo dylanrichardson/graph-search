@@ -15,7 +15,7 @@ class AlgorithmTest : FreeSpec() {
             val goal = StateImpl('G')
             val problem = Problem(makeGraph().addEdge(start, goal, 1.0), start, goal)
             val depthLimit = 1
-            val algorithm = Algorithm("test", naturalOrder(), depthLimit, ::addToFront)
+            val algorithm = Algorithm("test", naturalOrder(), depthLimit, addToFringe = ::addToFront)
 
             "search" - {
                 algorithm.search(problem) shouldBe true
@@ -27,7 +27,7 @@ class AlgorithmTest : FreeSpec() {
         }
 
 //        "Uniform" - {
-//            uniform().search(Problem(makeGraph().load(findFile("graph.txt")), StateImpl('S'), StateImpl('G'))) shouldBe true
+//            uniformCost().search(Problem(makeGraph().load(findFile("graph.txt")), StateImpl('S'), StateImpl('G'))) shouldBe true
 //        }
 
         "Problem" - {

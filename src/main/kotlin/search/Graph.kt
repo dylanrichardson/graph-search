@@ -56,8 +56,8 @@ data class Graph(val nodes: Map<State, Node> = emptyMap(), val parseState: (Stri
         }
     }
 
-    fun costBetween(state1: State, state2: State): Double? {
-        return getNode(state1).edges[state2]
+    fun costBetween(node1: Node, node2: Node): Double? {
+        return node1.edges[node2.state]
     }
 
     fun getNode(state: State): Node {
@@ -67,7 +67,7 @@ data class Graph(val nodes: Map<State, Node> = emptyMap(), val parseState: (Stri
         throw NodeNotFoundException(state)
     }
 
-    fun expandState(state: State) = getNode(state).edges.keys.toList()
+    fun expandNode(node: Node) = node.edges.keys.toList().map { state -> getNode(state) }
 
     // private
 

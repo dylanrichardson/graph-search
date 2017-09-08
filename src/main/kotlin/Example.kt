@@ -1,7 +1,8 @@
 import search.*
 
+// everything specific to the letters example
 
-data class StateImpl(private val letter: Char): State {
+internal data class StateImpl(private val letter: Char): State {
     override fun compareTo(other: State): Int {
         if (other is StateImpl)
             return letter.compareTo(other.letter)
@@ -22,9 +23,9 @@ data class StateImpl(private val letter: Char): State {
 }
 
 
-fun makeGraph() = Graph(emptyMap(), {s -> StateImpl.parseString(s)})
+internal fun makeGraph() = Graph(emptyMap(), {s -> StateImpl.parseString(s)})
 
-fun makeProblem(graph: Graph): Problem {
+internal fun makeProblem(graph: Graph): Problem {
     return try {
         Problem(graph, StateImpl('S'), StateImpl('G'))
     } catch (e: NodeNotFoundException) {
@@ -32,24 +33,33 @@ fun makeProblem(graph: Graph): Problem {
     }
 }
 
-
-val DepthFirst = depthFirst()
-//val DepthFirst = DepthFirstImpl()
-
-val BreadthFirst = breadthFirst()
-
-val DepthLimited = depthLimited(2)
-
-val IterativeDeepening = iterativeDeepening()
-
-val Uniform = object : IAlgorithm {
-    override fun search(problem: Problem, printExpansion: ((List<Path>) -> Unit)?): Boolean {
-        return uniform().search(problem) { fringe -> printExpansion(fringe, true) }
+internal fun runSearch(algorithm: IAlgorithm, problem: Problem) {
+    println("${algorithm.getName()}\n")
+    println("   Expanded  Queue")
+    val success = algorithm.search(problem, ::printExpansion)
+    if (success) {
+        println("      goal reached!")
     }
-
-    override fun getName() = uniform().getName()
-
+    println()
+    println()
 }
 
-val Algorithms = listOf(DepthFirst, BreadthFirst, DepthLimited, IterativeDeepening, Uniform)
+internal fun printExpansion(fringe: List<Path>, prefix: (Path) -> Any = { _ -> "" }) {
+    val queueString = fringe.joinToString(separator = " ", prefix = "[", postfix = "]") { path ->
+        prefix(path).toString() + path.toString()
+    }
+    println("      ${fringe[0].nodes[0].state}      $queueString")
+}
+
+val Algorithms = listOf(
+        depthFirst(),
+        breadthFirst(),
+        depthLimited(2),
+        iterativeDeepening(),
+        uniformCost(),
+        greedy(),
+        aStar(),
+        beam(2),
+        hillClimbing()
+)
 

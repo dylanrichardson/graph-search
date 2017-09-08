@@ -162,3 +162,5 @@ Beam search (w = 2)
       F      [3<F,E,D,S>]
       G      [0<G,F,E,D,S>]
       goal reached!
+
+
