@@ -68,12 +68,12 @@ data class Algorithm(
         val root = Path(listOf(problem.initialNode), 0.0)
         val fringe = listOf(root)
         // recursively search and expand fringe
-        return searchAndExpand(fringe, problem, printExpansion ?: { _, _ ->})
+        return General_Search(fringe, problem, printExpansion ?: { _, _ ->})
     }
 
     override fun getName() = name
 
-    private fun searchAndExpand(fringe: List<Path>, problem: Problem, printExpansion: (List<Path>, (Path) -> Any) -> Unit): Boolean {
+    private fun General_Search(fringe: List<Path>, problem: Problem, printExpansion: (List<Path>, (Path) -> Any) -> Unit): Boolean {
         // check if goal not found
         if (fringe.isEmpty())
             return false
@@ -110,11 +110,11 @@ data class Algorithm(
         val prunedFringe = if (nextFringe.isOverWidthLimit()) nextFringe.prune() else nextFringe
 
         // search next fringe
-        return searchAndExpand(prunedFringe, problem, printExpansion)
+        return General_Search(prunedFringe, problem, printExpansion)
     }
 
     private fun List<Path>.prune(): List<Path> {
-        val max = sortedBy(Path::heuristic).take(widthLimit!!).last().heuristic
+        val max = sortedWith(compareBy(Path::heuristic).then(Path.comparator)).take(widthLimit!!).last().heuristic
         return filterNot { it.heuristic > max }.take(widthLimit)
     }
 
@@ -219,6 +219,7 @@ fun hillClimbing() = Algorithm(
         name = "Hill climbing",
         expansionOrder = compareBy(Node::heuristic),
         addToFringe = ::addToFront,
+        widthLimit = 1,
         prefix = Path::heuristic
 )
 

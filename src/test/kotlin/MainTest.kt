@@ -32,6 +32,12 @@ class MainTest : FreeSpec() {
                 outContent.toString() shouldBe findFile("output.txt").readText()
             }
 
+            "prints expected output2" {
+                main(arrayOf("", "second_graph.txt"))
+                errContent.toString() shouldBe ""
+                outContent.toString() shouldBe findFile("output2.txt").readText()
+            }
+
             "prints error when file not found" {
                 val path = "test"
                 main(arrayOf("", path))
