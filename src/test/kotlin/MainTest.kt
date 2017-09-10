@@ -27,37 +27,37 @@ class MainTest : FreeSpec() {
     init {
         "main" - {
             "prints expected output" {
-                main(arrayOf("", "graph.txt"))
+                main(arrayOf("src/test/resources/graph.txt"))
                 errContent.toString() shouldBe ""
-                outContent.toString() shouldBe findFile("output.txt").readText()
+                outContent.toString() shouldBe findFile("src/test/resources/output.txt").readText()
             }
 
             "prints expected output2" {
-                main(arrayOf("", "second_graph.txt"))
+                main(arrayOf("src/test/resources/second_graph.txt"))
                 errContent.toString() shouldBe ""
-                outContent.toString() shouldBe findFile("output2.txt").readText()
+                outContent.toString() shouldBe findFile("src/test/resources/output2.txt").readText()
             }
 
             "prints error when file not found" {
                 val path = "test"
-                main(arrayOf("", path))
+                main(arrayOf(path))
                 errContent.toString() shouldBe fileNotFoundMsg(path).addNewLine()
             }
 
             "prints error when file path not passed as argument" {
-                main(arrayOf(""))
+                main(arrayOf())
                 errContent.toString() shouldBe FileArgExceptionMsg.addNewLine()
             }
 
             "prints error when initial or goal state not found in graph" {
-                main(arrayOf("", "graph1.txt"))
+                main(arrayOf("src/test/resources/graph1.txt"))
                 errContent.toString() shouldBe nodeNotFoundExceptionMsg(StateImpl('S')).addNewLine()
             }
         }
 
         "findFile" - {
             "finds existent file" {
-                findFile("graph1.txt") shouldNotBe null
+                findFile("src/test/resources/graph1.txt") shouldNotBe null
             }
 
             "throws exception when file not found" {
@@ -70,14 +70,14 @@ class MainTest : FreeSpec() {
         }
 
         "parseArgs" - {
-            "returns second argument if present" {
+            "returns first argument if present" {
                 val path = "test"
-                parseArgs(arrayOf("a", path, "c")) shouldNotBe "$path\n"
+                parseArgs(arrayOf(path, "c")) shouldBe path
             }
 
-            "throws exception when second argument is not present" {
+            "throws exception when argument is not present" {
                 val exception = shouldThrow<RuntimeException> {
-                    parseArgs(arrayOf("a"))
+                    parseArgs(arrayOf())
                 }
                 exception.message shouldBe FileArgExceptionMsg
             }

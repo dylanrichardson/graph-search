@@ -44,13 +44,17 @@ internal fun fileNotFoundMsg(path: String) = "Could not find file with path: $pa
 internal val FileArgExceptionMsg = "Expecting path to graph file as only argument"
 
 internal fun findFile(path: String): File {
+    val exception = RuntimeException(fileNotFoundMsg(path))
     return try {
-        File(ClassLoader.getSystemResource(path).file)
+        val file = File(path)
+        if (!file.exists())
+            throw exception
+        file
     } catch (e: Exception) {
         // only catch file not found and NPE
         when (e) {
             is FileNotFoundException,
-            is NullPointerException -> throw RuntimeException(fileNotFoundMsg(path))
+            is NullPointerException -> throw exception
             else -> throw e
         }
     }
@@ -58,7 +62,7 @@ internal fun findFile(path: String): File {
 
 internal fun parseArgs(args: Array<String>): String {
     return try {
-        args[1]
+        args[0]
     } catch (e: IndexOutOfBoundsException) {
         throw RuntimeException(FileArgExceptionMsg)
     }

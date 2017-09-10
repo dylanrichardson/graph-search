@@ -19,13 +19,13 @@ class LoadTest : FreeSpec() {
                 val graph = emptyGraph
                         .addEdge(stateA, stateB, 1.0)
                         .updateHeuristic(stateA, 2.0)
-                val file = findFile("graph1.txt")
+                val file = findFile("src/test/resources/graph1.txt")
                 emptyGraph.load(file) shouldBe graph
             }
 
             "throws error if file is incorrectly formatted" {
                 val exception = shouldThrow<RuntimeException> {
-                    val file = findFile("badGraph.txt")
+                    val file = findFile("src/test/resources/badGraph.txt")
                     emptyGraph.load(file)
                 }
                 exception.message shouldBe edgeFormatExceptionMsg("A B")

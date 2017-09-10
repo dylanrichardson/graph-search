@@ -20,7 +20,7 @@ internal val Separator = "#####"
 internal fun separateLines(lines: List<String>): Pair<List<String>, List<String>> {
     val before = lines.takeWhile { it != Separator }
     val after = lines.drop(before.count() + 1)
-    return Pair(before, after)
+    return Pair(before.filterNot { it == "" }, after.filterNot { it == "" })
 }
 
 internal fun Graph.addEdges(lines: List<String>): Graph {

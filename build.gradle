@@ -1,5 +1,3 @@
-group 'cs4341'
-version '1.0-SNAPSHOT'
 
 buildscript {
     ext.kotlin_version = '1.1.4-3'
@@ -13,6 +11,14 @@ buildscript {
 }
 
 apply plugin: 'kotlin'
+apply plugin: 'application'
+
+mainClassName = 'MainKt'
+
+run {
+    if (System.getProperty("exec.args"))
+        args System.getProperty("exec.args").split()
+}
 
 repositories {
     mavenCentral()
