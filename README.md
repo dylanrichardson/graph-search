@@ -1,21 +1,7 @@
+This program performs a variety of graph searches on a given graph. It was built for WPI CS4341 Intro to Artificial Intelligence.
+
 #### Group members
 
 - Anabella Isaro
 - Brian Copeland
 - Dylan Richardson
-
-#### How to run
-
-Unix
-
-> $ bin/search graph.txt
-
-Windows
-
-> $ bin/search.bat graph.txt
-
-#### Examples
-
-Input graphs and outputs in examples directory
-
-> $ bin/search examples/graph.txt
